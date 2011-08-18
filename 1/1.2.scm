@@ -126,26 +126,4 @@
           ((= c 0) 1) ; base
           (else (+ (pt (- r 1) (- c 1)) (pt (- r 1) c)))))
         
-
-
-(define (fast-expt b n)
-  (cond ((= n 0) 1)
-        ((even? n) (square (fast-expt b (/ n 2))))
-        (else (* b (fast-expt b (- n 1))))))
-
-(define (even? n)
-    (= (remainder n 2) 0))
-
-(define (square x) 
-  (* x x))
-
-(define (fast-expti b n)
-  (cond ((= n 0) 1)
-        ((= n 1) b)
-        (else (fast-expt-iter b n 1))))
-
-(define (fast-expt-iter b n product)
-  (cond ((= n 0) product)
-        ((even? n) (fast-expt-iter b (/ n 2) (square product)))
-        (else (fast-expt-iter b (- n 1) (* b product)))))
     
