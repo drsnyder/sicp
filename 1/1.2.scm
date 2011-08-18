@@ -142,11 +142,10 @@
 (define (fast-expti b n)
   (cond ((= n 0) 1)
         ((= n 1) b)
-        (even? (fast-expt-iter b n b))
-        (else (fast-expt-iter b n 1))
+        (else (fast-expt-iter b n 1))))
 
 (define (fast-expt-iter b n product)
-  (cond ((= n 1) product)
+  (cond ((= n 0) product)
         ((even? n) (fast-expt-iter b (/ n 2) (square product)))
         (else (fast-expt-iter b (- n 1) (* b product)))))
     
