@@ -168,4 +168,36 @@
 (define (fast-expti b n)
     (fast-expt-iter b n 1))
 
+; 1.17
+; original linear
+(define (mult a b)
+  (if (= b 0)
+      0
+      (+ a (mult a (- b 1)))))
     
+
+(define (even? n)
+  (= (remainder n 2) 0))
+
+(define (double a)
+  (+ a a))
+
+(define (halve a)
+  (/ a 2))
+
+; log n
+(define (multf a b)
+  (cond ((= b 0) 0)
+        ((even? b) (multf (double a) (halve b)))
+        (else (+ a (multf a (- b 1))))))
+
+; 1.18
+(define (multfi a b)
+  (multf-iter a b 0))
+
+(define (multf-iter a b p)
+  (cond ((= b 0) p)
+        ((even? b) (multf-iter (double a) (halve b) p))
+        (else (multf-iter a (- b 1) (+ a p)))))
+
+
