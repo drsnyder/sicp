@@ -249,7 +249,7 @@
           ((fermat-test n) (fast-prime? n (- times 1)))
           (else false)))
 
-(define (runtime) (current-milliseconds))
+(define (runtime) (current-inexact-milliseconds))
 
 (define (timed-prime-test n)
   (newline)
@@ -258,12 +258,13 @@
 
 (define (start-prime-test n start-time)
   (if (prime? n)
-    (report-prime (- (runtime) start-time))
-    (display " *** no prime ***")))
+    (and (report-prime (- (runtime) start-time)) #t)
+    (and (display " *** no prime ***") #f)))
 
 (define (report-prime elapsed-time)
   (display " *** ")
   (display elapsed-time))
+
 
 (define (find-prime n)
   (if (even? n)
@@ -278,3 +279,68 @@
     (if (fermat-test n) 
         n
         (find-prime (+ n 1)))))
+
+
+; 1.22
+(define (find-primes-greater-than n c)
+  (if (= c 0)
+    (display " done \n")
+    (if (= (remainder n 2) 0) 
+      (find-primes-greater-than (+ n 1) c)
+      (if (timed-prime-test n)
+        (find-primes-greater-than (+ n 2) (- c 1))
+        (find-primes-greater-than (+ n 2) c)))))
+
+; 1.23
+(define (smallest-divisor n)
+  (find-divisor n 2))
+
+(define (square x) (* x x))
+
+(define (next-divisor n)
+  (if (= n 2) 
+    3
+    (+ n 2)))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (next-divisor test-divisor)))))
+
+(define (divides? a b)
+  (= (remainder b a) 0))
+
+
+(define (find-divisor-s n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor-s n (+ test-divisor 1)))))
+
+; 1.25
+; looks equivalent to me
+(define (expmod b n m)
+  (cond ((= n 0) 1)
+        ((even? n)
+         (remainder (square (expmod b (/ n 2) m)) m))
+        (else
+          (remainder (* b (expmod b (- n 1) m)) m))))        
+
+(define (square x) (* x x))
+
+(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))
+
+(define (expmod-f base exp m)
+    (remainder (fast-expt base exp) m))
+
+; 1.27
+(define (carmichael? n)
+    (define (try-it a)
+      (= (expmod a n n) a))
+  (define (carmichael-iter n a)
+    (cond ((= a 1) #t)
+          ((try-it a) (carmichael-iter n (- a 1)))
+          (else #f)))
+  (and (not (prime? n)) (carmichael-iter n (- n 1)))) 
