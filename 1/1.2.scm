@@ -374,6 +374,7 @@
 
 (integral cube 0 1 0.01)
 
+; Simpson's Rule http://en.wikipedia.org/wiki/Simpson's_rule
 (define (simpson-integral f a b n)
 
   (define (h a b n) 
@@ -393,5 +394,13 @@
 
   (integrate (h a b n)))
 
+; 1.30 iterative sum
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (+ result (term a)))))
+  (iter a 0))
 
+(sum identity 0 inc 10)
     
