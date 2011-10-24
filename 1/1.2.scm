@@ -403,4 +403,18 @@
   (iter a 0))
 
 (sum identity 0 inc 10)
+
+; 1.31 product
+(define (product-r term a next b)
+  (if (> a b)
+    1
+    (* (term a)
+       (product-r term (next a) next b))))
+
+(define (product-i term a next b)
+  (define (iter a result)
+    (if (> a b)
+      result
+      (iter (next a) (* result (term a)))))
+  (iter a 1))
     
