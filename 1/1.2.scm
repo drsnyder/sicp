@@ -405,6 +405,7 @@
 (sum identity 0 inc 10)
 
 ; 1.31 product
+; TODO: compute pi using these
 (define (product-r term a next b)
   (if (> a b)
     1
