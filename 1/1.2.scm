@@ -344,3 +344,54 @@
           ((try-it a) (carmichael-iter n (- a 1)))
           (else #f)))
   (and (not (prime? n)) (carmichael-iter n (- n 1)))) 
+
+; 1.28
+; revisit
+
+
+; 1.29
+(define (sum term a next b)
+  (if (> a b)
+    0
+    (+ (term a)
+       (sum term (next a) next b))))
+
+(define (cube x) (* x x x))
+
+(define (inc n) (+ n 1))
+
+(define (sum-cubes a b)
+    (sum cube a inc b))
+
+(define (identity x) x)
+
+(define (sum-integers a b)
+  (sum identity a inc b))
+
+(define (integral f a b dx)
+  (define (add-dx x) (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b) dx))
+
+(integral cube 0 1 0.01)
+
+(define (simpson-integral f a b n)
+
+  (define (h a b n) 
+    (/ (- b a) n))
+
+  (define (integrate h)
+
+      (define (fx k)
+
+        (define (y a k h)
+          (+ a (* k h)))
+
+        (cond ((even? k) (* 2 (f (y a k h))))
+              (else (* 4 (f (y a k h))))))
+
+      (/ (* h (sum fx 0 inc n)) 3)) 
+
+  (integrate (h a b n)))
+
+
+    
