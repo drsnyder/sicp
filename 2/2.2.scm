@@ -116,3 +116,55 @@
 ; (edge-distance
 ;   (make-point 0 0)
 ;   (make-point 0 1)) => 1
+
+; 2.4
+
+(define (mycons x y)
+  (lambda (m) (m x y)))
+
+(define (mycar z)
+  (z (lambda (p q) p)))
+
+(define (mycdr z)
+  (z (lambda (p q) q)))
+
+; 2.5
+
+(define (carval a)
+  (expt 2 a))
+
+(define (cdrval b)
+  (expt 3 b))
+
+(define (reduce-i test term n c)
+  (if (test (term n))
+    (reduce-i test term (term n) (+ c 1))
+    c))
+
+(define (icar c)
+  (if (even? c)
+    (reduce-i (lambda (i) (and (integer? i) (even? i)))
+              (lambda (y) (/ y 2)) 
+              c 
+              1)
+    0))
+
+(define (icdr c)
+  (if (odd? c) 
+    (reduce-i (lambda (i) (and (integer? i) (odd? i)))
+              (lambda (y) (/ y 3)) 
+              c 
+              0)
+    (reduce-i (lambda (i) (and (integer? i) (odd? i)))
+              (lambda (y) (/ y 3)) 
+              (/ c (expt 2 (icar c))) 
+              0)))
+
+(define (icons a b)
+  (* (carval a) (cdrval b)))
+
+(define x (icons 1 1))
+(define y (icons 3 2))
+(define z (icons 16 27))
+(icar x)
+(icdr x)
