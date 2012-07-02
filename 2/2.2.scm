@@ -149,14 +149,20 @@
               1)
     0))
 
+(define (odd-test i)
+  (and (integer? i) (odd? i)))
+
+(define (d3 i)
+  (/ i 3))
+
 (define (icdr c)
   (if (odd? c) 
-    (reduce-i (lambda (i) (and (integer? i) (odd? i)))
-              (lambda (y) (/ y 3)) 
+    (reduce-i odd-test
+              d3
               c 
               0)
-    (reduce-i (lambda (i) (and (integer? i) (odd? i)))
-              (lambda (y) (/ y 3)) 
+    (reduce-i odd-test
+              d3
               (/ c (expt 2 (icar c))) 
               0)))
 
@@ -168,3 +174,18 @@
 (define z (icons 16 27))
 (icar x)
 (icdr x)
+
+; 2.17
+(define (last-pair s)
+  (if (null? (cdr s))
+    s
+    (last-pair (cdr s))))
+
+; 2.18
+(define (reverse s)
+  (define (reverse-i is os)
+    (if (null? is)
+      os
+      (reverse-i (cdr is) (cons (car is) os))))
+  (reverse-i s '()))
+
