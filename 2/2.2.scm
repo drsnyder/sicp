@@ -189,3 +189,51 @@
       (reverse-i (cdr is) (cons (car is) os))))
   (reverse-i s '()))
 
+; 2.20
+(define (same-parity s . rest)
+  (define (take-with-parity p l)
+    (if (null? l)
+      '()
+      (if (= (remainder (car l) 2) p)
+        (cons (car l) (take-with-parity p (cdr l)))
+        (take-with-parity p (cdr l)))))
+  (let ((p (remainder s 2)))
+    (cons s (take-with-parity p rest))))
+
+; 2.21
+(define (square-list items)
+  (if (null? items)
+    '()
+    (cons (* (car items) (car items)) 
+          (square-list (cdr items)))))
+
+(define (square-list items)
+  (map (lambda (x) (* x x)) items))
+
+; 2.22
+(define (square x) (* x x))
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+      answer
+      (iter (cdr things) 
+            (cons (square (car things))
+                  answer))))
+  (iter items '()))
+
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter items '()))
+
+; 2.23
+(define (for-each f items)
+  (and 
+    (not (null? items))
+    (or (f (car items)) #t)
+    (for-each f (cdr items))))
+
