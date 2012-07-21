@@ -237,3 +237,13 @@
     (or (f (car items)) #t)
     (for-each f (cdr items))))
 
+; 2.27
+(define (deep-reverse s)
+    (define (reverse-i s a)
+      (cond [(null? s) a]
+            [(list? s) 
+             (reverse-i (cdr s) 
+                        (cons (reverse-i (car s) '()) a))]
+            [else s]))
+    (reverse-i s '()))
+    
