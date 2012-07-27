@@ -246,4 +246,13 @@
                         (cons (reverse-i (car s) '()) a))]
             [else s]))
     (reverse-i s '()))
+
+; 2.28
+; fridge / flatten
+(define (flatten s)
+  (cond [(null? s) '()]
+        [(list? s) (append 
+                     (flatten (car s)) 
+                     (flatten (cdr s)))]
+        [else s]))
     
