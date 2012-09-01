@@ -256,3 +256,49 @@
                      (flatten (cdr s)))]
         [else s]))
     
+; 2.29
+(define (make-mobile left right)
+  (list "mobile" left right))
+
+(define (make-branch len structure)
+  (cond [(number? structure) (list "weight" len structure)]
+        [else (list "structure" len structure)]))
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (car (cdr mobile)))
+
+(define (branch-length branch)
+  (car (cdr branch)))
+
+(define (branch-structure branch)
+  (car (cdr (cdr branch))))
+
+(define (branch-type branch)
+  (car branch))
+
+(define (weight? node)
+  (eq? "weight" (branch-type node)))
+
+(define (structure? node)
+  (eq? "structure" (branch-type node)))
+
+(define (mobile? node)
+  (eq? "mobile" (branch-type node)))
+
+
+(define (total-weight mobile)
+  (display mobile)
+  (newline)
+  (cond [(weight? mobile) (branch-structure mobile)]
+        [(structure? mobile) (total-weight (branch-structure mobile))]
+        [else (+ (total-weight (left-branch mobile)) 
+                 (total-weight (right-branch mobile)))]))
+
+
+(define m (make-mobile (make-branch 1 10) (make-branch 2 20)))
+(define mm (make-mobile (make-branch 2 m) (make-branch 3 m)))
+
+(total-weight mm)
