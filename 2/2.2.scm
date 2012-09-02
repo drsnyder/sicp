@@ -258,11 +258,10 @@
     
 ; 2.29
 (define (make-mobile left right)
-  (list "mobile" left right))
+  (list left right))
 
 (define (make-branch len structure)
-  (cond [(number? structure) (list "weight" len structure)]
-        [else (list "structure" len structure)]))
+  (list len structure))
 
 (define (left-branch mobile)
   (car mobile))
@@ -271,34 +270,65 @@
   (car (cdr mobile)))
 
 (define (branch-length branch)
-  (car (cdr branch)))
-
-(define (branch-structure branch)
-  (car (cdr (cdr branch))))
-
-(define (branch-type branch)
   (car branch))
 
-(define (weight? node)
-  (eq? "weight" (branch-type node)))
+(define (branch-structure branch)
+  (display branch)
+  (newline)
+  (car (cdr branch)))
 
-(define (structure? node)
-  (eq? "structure" (branch-type node)))
+(define (branch-weight branch)
+  (branch-structure branch))
 
-(define (mobile? node)
-  (eq? "mobile" (branch-type node)))
+(define (mobile? structure)
+  (and (list? (left-branch structure)) 
+       (list? (right-branch structure))))
+
+(define (weight? structure)
+  (integer? (right-branch structure)))
+
+(define (structure? structure)
+  (not (weight? (right-branch structure))))
 
 
 (define (total-weight mobile)
   (display mobile)
   (newline)
-  (cond [(weight? mobile) (branch-structure mobile)]
-        [(structure? mobile) (total-weight (branch-structure mobile))]
-        [else (+ (total-weight (left-branch mobile)) 
-                 (total-weight (right-branch mobile)))]))
+  (cond 
+    [(mobile? mobile) 
+     (+ (total-weight (left-branch mobile)) 
+        (total-weight (right-branch mobile)))]
+    [(weight? mobile) 
+     (branch-weight mobile)]
+    [(structure? mobile) 
+     (total-weight (branch-structure mobile))]
+    [else 0]))
+
+(define (torque node)
+  (* (branch-length node) 
+     (total-weight node)))
+
+(define (balanced? mobile)
+  (if (mobile? mobile)
+    (and 
+        (= (torque (left-branch mobile))
+           (torque (right-branch mobile)))
+        (balanced? (left-branch mobile))
+        (balanced? (right-branch mobile)))
+    #t))
 
 
-(define m (make-mobile (make-branch 1 10) (make-branch 2 20)))
-(define mm (make-mobile (make-branch 2 m) (make-branch 3 m)))
+(define b (make-branch 25 4))
+(define c (make-branch 2 5))
+(define d (make-branch 2 5))
+(define e (make-mobile c d))
+(define a (make-branch 10 e))
+(define m (make-mobile a b))
 
-(total-weight mm)
+(balanced? m) ; #t
+
+(define nb (make-mobile (make-branch 2 3) (make-branch 4 5))) 
+(balanced? nb) ; #f
+
+
+
