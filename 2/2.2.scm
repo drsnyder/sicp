@@ -247,3 +247,8 @@
             [else s]))
     (reverse-i s '()))
     
+; 2.28 fridge/flatten
+(define (flatten s)
+  (cond [(null? s) '()]
+        [(list? s) (cons (flatten (car s)) (flatten (cdr s)))]
+        [else s]))
