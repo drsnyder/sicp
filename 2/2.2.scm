@@ -246,9 +246,134 @@
                         (cons (reverse-i (car s) '()) a))]
             [else s]))
     (reverse-i s '()))
+
+; 2.28
+; fridge / flatten
+(define (flatten s)
+  (cond [(null? s) '()]
+        [(list? s) (append 
+                     (flatten (car s)) 
+                     (flatten (cdr s)))]
+        [else s]))
     
 ; 2.28 fridge/flatten
 (define (flatten s)
   (cond [(null? s) '()]
         [(list? s) (cons (flatten (car s)) (flatten (cdr s)))]
         [else s]))
+
+; 2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch len structure)
+  (list len structure))
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (car (cdr mobile)))
+
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (display branch)
+  (newline)
+  (car (cdr branch)))
+
+(define (branch-weight branch)
+  (branch-structure branch))
+
+(define (mobile? structure)
+  (and (list? (left-branch structure)) 
+       (list? (right-branch structure))))
+
+(define (weight? structure)
+  (integer? (right-branch structure)))
+
+(define (structure? structure)
+  (not (weight? (right-branch structure))))
+
+
+(define (total-weight mobile)
+  (display mobile)
+  (newline)
+  (cond 
+    [(mobile? mobile) 
+     (+ (total-weight (left-branch mobile)) 
+        (total-weight (right-branch mobile)))]
+    [(weight? mobile) 
+     (branch-weight mobile)]
+    [(structure? mobile) 
+     (total-weight (branch-structure mobile))]
+    [else 0]))
+
+(define (torque node)
+  (* (branch-length node) 
+     (total-weight node)))
+
+(define (balanced? mobile)
+  (if (mobile? mobile)
+    (and 
+        (= (torque (left-branch mobile))
+           (torque (right-branch mobile)))
+        (balanced? (left-branch mobile))
+        (balanced? (right-branch mobile)))
+    #t))
+
+
+(define b (make-branch 25 4))
+(define c (make-branch 2 5))
+(define d (make-branch 2 5))
+(define e (make-mobile c d))
+(define a (make-branch 10 e))
+(define m (make-mobile a b))
+
+(balanced? m) ; #t
+
+(define nb (make-mobile (make-branch 2 3) (make-branch 4 5))) 
+(balanced? nb) ; #f
+
+
+;;;;
+(define (scale-tree tree factor)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+
+(scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)) 
+            10)
+
+(define (scale-tree tree factor)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (scale-tree sub-tree factor)
+             (* sub-tree factor)))
+       tree))
+
+; 2.30
+(define (square x) (* x x))
+(define (square-tree tree)
+  (cond 
+    [(null? tree) '()]
+    [(not (pair? tree)) (square tree)]
+    [else (cons (square-tree (car tree))
+                (square-tree (cdr tree)))]))
+
+(define (square-tree tree)
+  (map (lambda (leaf)
+         (if (pair? leaf)
+           (square-tree leaf)
+           (square leaf))) tree))
+
+; 2.31
+(define (tree-map tree f)
+  (map (lambda (leaf)
+         (if (pair? leaf)
+           (tree-map leaf f)
+           (f leaf))) tree))
+
+
