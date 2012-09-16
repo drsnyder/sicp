@@ -411,3 +411,64 @@
         (else (append (enumerate-tree (car tree))
                       (enumerate-tree (cdr tree))))))
 
+
+; 2.33
+(define (mymap p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) null sequence))
+
+(define (myappend seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (mylength sequence)
+  (accumulate (lambda (x y) (+ y 1)) 0 sequence))
+
+
+; 2.34
+
+(define (showseq seq)
+  (accumulate (lambda (x y) (display x) (display " ") (display y) (display "\n") y) 0 seq))
+
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) (+ this-coeff (* x higher-terms)))
+              0
+              coefficient-sequence))
+
+; 2.35
+
+; original
+(define (count-leaves x)
+  (cond ((null? x) 0)  
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x))
+                 (count-leaves (cdr x))))))
+
+(define x (cons (list 1 2) (list 3 4)))
+
+(define (acount-leaves t)
+    (accumulate (lambda (leaf total) (+ leaf total)) 0 
+                (map count-leaves t)))
+
+; 2.36
+(define (accumulate-n op init seqs)
+  (if (null? seqs)
+      null
+      (cons (accumulate op init (car seqs))
+            (accumulate-n op init (cdr seqs)))))
+
+; 2.37
+(define m '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
+(define mp '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(dot-product (car m) (car mp))
+
+(define (matrix-*-vector m v)
+  (map 
+    (lambda (mp) (dot-product mp v))
+      m))
+
+(define (transpose mat)
+  (accumulate-n <??> <??> mat))
+
