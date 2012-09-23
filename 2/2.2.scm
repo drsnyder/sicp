@@ -458,6 +458,7 @@
 ; 2.37
 (define m '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
 (define mp '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
+(define mx '((1 2 3) (4 5 6) (7 8 9)))
 
 (define (dot-product v w)
   (accumulate + 0 (map * v w)))
@@ -469,6 +470,15 @@
     (lambda (mp) (dot-product mp v))
       m))
 
+
 (define (transpose mat)
-  (accumulate-n <??> <??> mat))
+  (define (iter matp mat)
+    (if (null? (car mat))
+      matp
+      (iter 
+        (append matp (list 
+                     (accumulate (lambda (e col) (cons (car e) col)) '() mat)))
+        (map (lambda (e) (cdr e)) mat))))
+  (iter '() mat))
+
 
