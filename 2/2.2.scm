@@ -449,11 +449,17 @@
                 (map count-leaves t)))
 
 ; 2.36
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
 (define (accumulate-n op init seqs)
-  (if (null? seqs)
+  (if (null? (car seqs))
       null
-      (cons (accumulate op init (car seqs))
-            (accumulate-n op init (cdr seqs)))))
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
 
 ; 2.37
 (define m '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
@@ -471,6 +477,7 @@
       m))
 
 
+; iter
 (define (transpose mat)
   (define (iter matp mat)
     (if (null? (car mat))
@@ -480,5 +487,75 @@
                      (accumulate (lambda (e col) (cons (car e) col)) '() mat)))
         (map (lambda (e) (cdr e)) mat))))
   (iter '() mat))
+
+
+; accum
+(define (transpose mat)
+  (accumulate-n (lambda (e col) 
+                  (cons e col))
+                '()
+                mat))
+
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))
+
+(define (enumerate-tree tree)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (list tree))
+        (else (append (enumerate-tree (car tree))
+                      (enumerate-tree (cdr tree))))))
+
+
+; 2.33
+(define (mymap p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) null sequence))
+
+(define (myappend seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (mylength sequence)
+    (accumulate (lambda (x y) (+ y 1)) 0 sequence))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
