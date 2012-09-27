@@ -488,6 +488,25 @@
         (map (lambda (e) (cdr e)) mat))))
   (iter '() mat))
 
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (v)
+           (map (lambda (mp)
+                  (dot-product v mp)) cols))
+           m)))
+
+
+; 2.38
+; fold-right and fold-left will give the same answers as long as the function being applied
+; is distributive. For example, * and + are distributive, so they will produce the same results using either.
+(define fold-right accumulate)
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
 
 ; accum
 (define (transpose mat)
