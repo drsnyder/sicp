@@ -601,12 +601,67 @@
                        (enumerate-interval 1 (- i 1))))
                 (enumerate-interval 1 n)))))
 
-(define (all-pairs n)
+
+(define (permutations seq)
+  (if (null? seq)
+    (list null)
+    (flatmap
+      (lambda (x)
+        (map (lambda (p)
+               (cons x p))
+             (permutations (remove x seq)))) 
+      seq)))
+        
+(define (remove x s)
+  (filter (lambda (e)
+            (not (= x e))) s))
+
+
+; 2.40
+(define (unique-pairs n)
   (flatmap 
     (lambda (i)
       (map (lambda (j) (list i j))
            (enumerate-interval 1 (- i 1))))
     (enumerate-interval 1 n)))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+       (filter prime-sum? (unique-pairs n))))
+               
+
+; 2.41
+
+(define (make-triple-sum triple)
+  (list (car triple) (cadr triple) (caddr triple)
+        (apply + triple)))
+
+(define (unique-triples n)
+  (flatmap
+    (lambda (i)
+      (map (lambda (j) 
+             (map (lambda (k) (list i j k)) 
+                  (enumerate-interval 1 (- j 1))))
+           (enumerate-interval 1 (- i 1))))
+      (enumerate-interval 1 n)))
+
+(define (unique-triples n)
+  (flatmap
+    (lambda (i)
+      (flatmap (lambda (j) 
+             (map (lambda (k) (list i j k)) 
+                  (enumerate-interval 1 (- j 1))))
+           (enumerate-interval 1 (- i 1))))
+      (enumerate-interval 1 n)))
+
+(define (sum-to-triples k sum)
+  (map make-triple-sum
+       (filter (lambda (t)
+                 (= (apply + t) sum)) 
+               (unique-triples k))))
+
+
+
 
 
 
