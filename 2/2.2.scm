@@ -660,6 +660,54 @@
                  (= (apply + t) sum)) 
                (unique-triples k))))
 
+; 2.42
+
+(define empty-board null)
+
+(define (create-position row col)
+  (list row col))
+
+(define (row pos)
+  (car pos))
+
+(define (col pos)
+  (cadr pos))
+
+(define (adjoin-position new-row k rest-of-queens)
+  (append rest-of-queens (list (create-position new-row k))))
+
+(define (nth seq n)
+  (cond 
+    [(null? seq) null]
+    [(= n 0) (car seq)]
+    [else (nth (cdr seq) (- n 1))]))
+
+
+
+(define (safe? k positions)
+  (let ((kth (nth positions (- k 1)))
+        (kth-col (col kth))
+        (kth-row (row kth)))
+    (map (lambda (pos)
+           (and 
+             (not (= (col pos) kth-col))
+             (not (= (row pos) kth-row))
+
+
+
+(define (queens board-size)
+  (define (queen-cols k)  
+    (if (= k 0)
+      (list empty-board)
+      (filter
+        (lambda (positions) (safe? k positions))
+        (flatmap
+          (lambda (rest-of-queens)
+            (map (lambda (new-row)
+                   (adjoin-position new-row k rest-of-queens))
+                 (enumerate-interval 1 board-size)))
+          (queen-cols (- k 1))))))
+  (queen-cols board-size))
 
 
 
