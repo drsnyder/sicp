@@ -685,6 +685,7 @@
 
 
 
+;;;; not necessary
 (define (valid-position? k p)
   (and (<= (row p) k)
        (<= (col p) k)
@@ -730,22 +731,20 @@
     (up-right-diag k position)
     (down-right-diag k position)
     (down-left-diag k position)))
+;;;; end not necessary
 
 
-(define (find-same-diagonal kth k positions)
-  (let ((diagonals (diagonals k kth)))
-    (filter (lambda (p)
-            (not (empty? 
-                   (filter 
-                     (lambda (y)
-                       (equal? y p))
-                     diagonals))))
-            positions)))
+(define (diagonal? x y)
+  (= (abs (- (row x) (row y)))
+     (abs (- (col x) (col y)))))
 
-(define (same-diagonal? kth k positions)
-    (not 
-      (empty? 
-        ))))
+(define (find-same-diagonal kth positions)
+  (filter (lambda (p)
+            (diagonal? p kth))
+          positions))
+
+(define (same-diagonal? kth positions)
+    (not (empty? (find-same-diagonal kth positions))))
 
 
 (define (find-same-row-or-column kth positions)
@@ -761,9 +760,11 @@
 
 
 (define (safe? k positions)
-  (let ((kth (nth positions (- k 1))))
-      (empty?
-        (same-row-or-column? kth (take positions (- k 1))))))
+  (let ((kth (nth positions (- k 1)))
+        (current-board (take positions (- k 1))))
+    (and
+      (not (same-row-or-column? kth current-board))
+      (not (same-diagonal? kth current-board)))))
 
 (define (queens board-size)
   (define (queen-cols k)  
