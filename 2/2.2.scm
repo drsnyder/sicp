@@ -682,6 +682,18 @@
     [(= n 0) (car seq)]
     [else (nth (cdr seq) (- n 1))]))
 
+(define (drop-n seq n)
+  (cond
+    [(null? seq) null]
+    [(= n 0) seq]
+    [else (drop-n (cdr seq) (- n 1))]))
+
+(define (take-n seq n)
+    (cond
+      [(null? seq) null]
+      [(= n 0) null]
+      [else (cons (car seq) 
+                  (take-n (cdr seq) (- n 1)))]))
 
 
 (define (safe? k positions)
