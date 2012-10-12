@@ -696,16 +696,87 @@
                   (take-n (cdr seq) (- n 1)))]))
 
 
+
+;;;; not necessary
+(define (valid-position? k p)
+  (and (<= (row p) k)
+       (<= (col p) k)
+       (>= (row p) 1)
+       (>= (col p) 1)))
+
+(define (build-diags k f)
+  (filter (lambda (p)
+            (valid-position? k p))
+          (map f (enumerate-interval 1 (- k 1)))))
+    
+(define (up-right-diag k p)
+  (build-diags k 
+               (lambda (i)
+                 (create-position 
+                   (- (row p) i)
+                   (+ (col p) i)))))
+
+(define (up-left-diag k p)
+  (build-diags k 
+               (lambda (i)
+                 (create-position 
+                   (- (row p) i)
+                   (- (col p) i)))))
+
+(define (down-left-diag k p)
+  (build-diags k 
+               (lambda (i)
+                 (create-position 
+                   (+ (row p) i)
+                   (- (col p) i)))))
+
+(define (down-right-diag k p)
+  (build-diags k 
+               (lambda (i)
+                 (create-position 
+                   (+ (row p) i)
+                   (+ (col p) i)))))
+
+(define (diagonals k position)
+  (append
+    (up-left-diag k position)
+    (up-right-diag k position)
+    (down-right-diag k position)
+    (down-left-diag k position)))
+;;;; end not necessary
+
+
+(define (diagonal? x y)
+  (= (abs (- (row x) (row y)))
+     (abs (- (col x) (col y)))))
+
+(define (find-same-diagonal kth positions)
+  (filter (lambda (p)
+            (diagonal? p kth))
+          positions))
+
+(define (same-diagonal? kth positions)
+    (not (empty? (find-same-diagonal kth positions))))
+
+
+(define (find-same-row-or-column kth positions)
+  (filter (lambda (pos)
+            (or 
+              (= (col pos) (col kth))
+              (= (row pos) (row kth)))) 
+          positions))
+
+
+(define (same-row-or-column? kth positions)
+  (not (empty? (find-same-row-or-column kth positions))))
+
+
 (define (safe? k positions)
   (let ((kth (nth positions (- k 1)))
-        (kth-col (col kth))
-        (kth-row (row kth)))
-    (map (lambda (pos)
-           (and 
-             (not (= (col pos) kth-col))
-             (not (= (row pos) kth-row))
-
-
+        (current-board (take positions (- k 1))))
+    (and
+      (not (same-row-or-column? kth current-board))
+      (not (same-diagonal? kth current-board)))))
 
 (define (queens board-size)
   (define (queen-cols k)  
@@ -720,9 +791,6 @@
                  (enumerate-interval 1 board-size)))
           (queen-cols (- k 1))))))
   (queen-cols board-size))
-
-
-
 
 
 
