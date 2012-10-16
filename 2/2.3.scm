@@ -27,14 +27,21 @@
 
 (define (addend s) (cadr s))
 
-(define (augend s) (caddr s))
+(define (augend s) 
+  (cond ((< 3 (length s)) 
+         (cons '+ (cddr s)))
+        (else (caddr s))))
 
 (define (product? x)
     (and (pair? x) (eq? (car x) '*)))
 
-(define (multiplier p) (cadr p))
+(define (multiplier p) 
+  (cadr p))
 
-(define (multiplicand p) (caddr p))
+(define (multiplicand p) 
+  (cond ((< 3 (length p)) 
+         (cons '* (cddr p)))
+        (else (caddr p))))
 
 (define (deriv exp var)
   (cond ((number? exp) 0)
@@ -107,3 +114,107 @@
              (deriv (base exp) var)))
         (else
          (error "unknown expression type -- DERIV" exp))))
+
+
+; 2.57
+; see augend and multiplicand above
+(deriv '(* (* x y) (+ x 3)) 'x) => (deriv '(* x y (+ x 3)) 'x)
+
+; 2.58
+
+(define (sum? x)
+    (and (pair? x) 
+         (eq? (cadr x) '+)))
+
+(sum? '(1 + 2))
+
+(define (addend s) (car s))
+
+(define (augend s) 
+  (caddr s))
+
+(define (product? x)
+    (and (pair? x) 
+         (eq? (cadr x) '*)))
+
+(product? '(1 * 2))
+
+(define (multiplier p) 
+  (car p))
+
+(define (multiplicand p) 
+  (caddr p))
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list m1 '* m2))))
+
+(deriv '((x * y) * (x + 3)) 'x)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
