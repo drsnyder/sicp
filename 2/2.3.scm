@@ -122,9 +122,25 @@
 
 ; 2.58
 
+(define (memq item x)
+  (cond ((null? x) false)
+        ((eq? item (car x)) x)
+        (else (memq item (cdr x)))))
+
+(define (take-while f seq)
+  (cond ((null? seq) seq)
+        ((f (car seq)) 
+         (cons (car seq) (take-while f (cdr seq))))
+        (else null)))
+
+(define (expression? x)
+  (or (product? x)
+      (sum? x)
+      (exponentiation? x)))
+
 (define (sum? x)
-    (and (pair? x) 
-         (eq? (cadr x) '+)))
+  (and (not (product? x))
+       (memq '* x)))
 
 (sum? '(1 + 2))
 
@@ -134,16 +150,23 @@
   (caddr s))
 
 (define (product? x)
-    (and (pair? x) 
-         (eq? (cadr x) '*)))
+  (memq '* x))
 
 (product? '(1 * 2))
 
+
 (define (multiplier p) 
-  (car p))
+  (let ((e (take-while (lambda (x) (not (eq? '* x))) p)))
+    (if (expression? e)
+      e
+      (car e))))
+
 
 (define (multiplicand p) 
-  (caddr p))
+  (let ((e (cdr (memq '* p))))
+    (if (expression? e)
+      e
+      (car e))))
 
 (define (make-sum a1 a2)
   (cond ((=number? a1 0) a2)
@@ -159,7 +182,12 @@
         ((and (number? m1) (number? m2)) (* m1 m2))
         (else (list m1 '* m2))))
 
-(deriv '((x * y) * (x + 3)) 'x)
+(define t1 '((x * y) * (x + 3)))
+(define t2 '(x + 3 * (x + y + 2)))
+(define t3 '((2 + 3) * (3 * 3)))
+(define t4 '(2 + 3 * 3 * 3))
+(deriv t1 'x)
+(deriv t2 'x)
 
 
 
