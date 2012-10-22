@@ -139,15 +139,21 @@
       (exponentiation? x)))
 
 (define (sum? x)
-  (and (not (product? x))
-       (memq '* x)))
+  (memq '+ x))
 
 (sum? '(1 + 2))
 
-(define (addend s) (car s))
+(define (addend s) 
+  (let ((e (take-while (lambda (x) (not (eq? '+ x))) s)))
+    (if (expression? e)
+      e
+      (car e))))
 
 (define (augend s) 
-  (caddr s))
+  (let ((e (cdr (memq '+ s))))
+    (if (expression? e)
+      e
+      (car e))))
 
 (define (product? x)
   (memq '* x))
@@ -182,6 +188,14 @@
         ((and (number? m1) (number? m2)) (* m1 m2))
         (else (list m1 '* m2))))
 
+(define (make-exponentiation b e)
+  (cond ((=number? b 0) 0)
+        ((=number? e 0) 1)
+        ((=number? e 1) b)
+        ((and (number? b) (number? e)) (expt b e)) 
+        (else (list '** b e))))
+
+
 (define t1 '((x * y) * (x + 3)))
 (define t2 '(x + 3 * (x + y + 2)))
 (define t3 '((2 + 3) * (3 * 3)))
@@ -190,7 +204,34 @@
 (deriv t2 'x)
 
 
+(define (eval-exp exp)
+  (cond ((number? exp) exp)
+        ((variable? exp) exp)
+        ((sum? exp)
+         (make-sum (eval-exp (addend exp))
+                   (eval-exp (augend exp))))
+        ((product? exp)
+         (make-product (eval-exp (multiplier exp))
+                       (eval-exp (multiplicand exp))))
+        ((exponentiation? exp)
+         (make-exponentiation (eval-exp (base exp))
+                              (eval-exp (exponent exp))))
+        (else
+         (error "unknown expression type -- eval-exp" exp))))
 
+
+(define eval-exp-tests
+  (test-suite
+    "eval-exp"
+    (test-case
+      "simple arithmetic"
+      (check-eq? (eval-exp '(1 + 1)) 2)
+      (check-eq? (eval-exp '(2 * 3)) 6)
+      (check-eq? (eval-exp '((2 * 3) + (2 * 3))) 12)
+      (check-eq? (eval-exp '(2 * 3 + (2 * 3))) 12)
+      (check-eq? (eval-exp '(3 + 2 * 3)) 9)
+      (check-eq? (eval-exp '(2 * 3 + 2 * 3)) 12)
+      )))
 
 
 
