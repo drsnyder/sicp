@@ -143,17 +143,32 @@
 
 (sum? '(1 + 2))
 
-(define (addend s) 
-  (let ((e (take-while (lambda (x) (not (eq? '+ x))) s)))
+(define (arithmetic-lhs expr sym)
+  (let ((e (take-while (lambda (x) (not (eq? sym x))) expr)))
     (if (expression? e)
       e
       (car e))))
 
-(define (augend s) 
-  (let ((e (cdr (memq '+ s))))
+(define (arithmetic-rhs expr sym)
+  (let ((e (cdr (memq sym expr))))
     (if (expression? e)
       e
       (car e))))
+
+(define (addend s) 
+  (arithmetic-lhs s '+))
+
+(define (augend s) 
+  (arithmetic-rhs s '+))
+
+(define (difference? x)
+  (memq '- x))
+
+(define (minuend s)
+  (arithmetic-lhs s '-))
+
+(define (subtrahend s)
+  (arithmetic-rhs s '-))
 
 (define (product? x)
   (memq '* x))
@@ -162,19 +177,19 @@
 
 
 (define (multiplier p) 
-  (let ((e (take-while (lambda (x) (not (eq? '* x))) p)))
-    (if (expression? e)
-      e
-      (car e))))
+  (arithmetic-lhs p '*))
 
 
 (define (multiplicand p) 
-  (let ((e (cdr (memq '* p))))
-    (if (expression? e)
-      e
-      (car e))))
+  (arithmetic-rhs p '*))
 
 (define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (make-difference a1 a2)
   (cond ((=number? a1 0) a2)
         ((=number? a2 0) a1)
         ((and (number? a1) (number? a2)) (+ a1 a2))
@@ -231,6 +246,9 @@
       (check-eq? (eval-exp '(2 * 3 + (2 * 3))) 12)
       (check-eq? (eval-exp '(3 + 2 * 3)) 9)
       (check-eq? (eval-exp '(2 * 3 + 2 * 3)) 12)
+      (check-eq? (eval-exp '(2 + 3 * 2 + 3)) 11)
+      (check-eq? (eval-exp '(2 + (3 * 2) + 3)) 11)
+      (check-eq? (eval-exp '((2 + 3) * (2 + 3))) 25)
       )))
 
 
