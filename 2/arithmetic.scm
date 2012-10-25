@@ -29,23 +29,40 @@
       e
       (car e))))
 
+(define (rhs expr)
+  (caddr expr))
+
+(define (op expr)
+  (cadr expr))
+
+(define (lhs expr)
+  (car expr))
+
+(define (more? expr)
+  (cond 
+    ((null? expr) false)
+    (else (memq (car expr) '(- * + **)))))
+
+(define (pop-expr e)
+  (drop e 3))
+
 (define (sum? x)
   (memq '+ x))
 
 (define (addend s) 
-  (arithmetic-lhs s '+))
+  (lhs s))
 
 (define (augend s) 
-  (arithmetic-rhs s '+))
+  (rhs s))
 
 (define (difference? x)
   (memq '- x))
 
 (define (minuend s)
-  (arithmetic-lhs s '-))
+  (lhs s))
 
 (define (subtrahend s)
-  (arithmetic-rhs s '-))
+  (rhs s))
 
 (define (product? x)
   (memq '* x))
@@ -90,6 +107,24 @@
         ((=number? e 1) b)
         ((and (number? b) (number? e)) (expt b e)) 
         (else (list '** b e))))
+
+
+(define (infix exp)
+  (cond ((number? exp) exp)
+        ((variable? exp) exp)
+        ((difference? exp)
+         (if (more? (pop-expr exp))
+           (infix (cons
+                    (make-difference
+                      (eval-exp (minuend exp))
+                      (eval-exp (subtrahend exp)))
+                    (pop-expr exp)))
+           (make-difference
+             (eval-exp (minuend exp))
+             (eval-exp (subtrahend exp)))))
+        (else
+         (error "unknown expression type -- eval-exp" exp))))
+
 
 (define (eval-exp exp)
   (cond ((number? exp) exp)
