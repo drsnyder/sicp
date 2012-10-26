@@ -16,18 +16,31 @@
          (cons (car seq) (take-while f (cdr seq))))
         (else null)))
 
+(define (precedence sym)
+  (cond
+    ((eq? sym '*) 6)
+    ((eq? sym '/) 6)
+    ((eq? sym '+) 7)
+    ((eq? sym '-) 7)
+    (else (error "unknow symbol -- " sym))))
 
-(define (arithmetic-lhs expr sym)
-  (let ((e (take-while (lambda (x) (not (eq? sym x))) expr)))
-    (if (expression? e)
-      e
-      (car e))))
+(define (create-node op lhs rhs)
+  (list (precedence op) op lhs rhs))
 
-(define (arithmetic-rhs expr sym)
-  (let ((e (cdr (memq sym expr))))
-    (if (expression? e)
-      e
-      (car e))))
+(define (node-right-leaf node)
+  (cadddr node))
+
+(define (node-left-leaf node)
+  (caddr node))
+
+(define (node-op node)
+  (cadr node))
+
+(define (node-prec node)
+  (car node))
+
+(define (eval-node node)
+  (eval (cdr node)))
 
 (define (rhs expr)
   (caddr expr))
@@ -37,6 +50,31 @@
 
 (define (lhs expr)
   (car expr))
+
+(define (add-node o l r tree)
+  ((cond
+     ((null? tree) (create-node o l r))
+     ((> (precedence (node-op tree)) (precedence o))
+           ; create on left
+         )
+     (else ; create on right))))
+
+
+
+(define (build-arithmetic-tree expr tree)
+  (cond 
+    ((null? expr) '())
+
+
+
+
+
+
+(define (base e)
+  (lhs e))
+
+(define (exponent e)
+  (rhs e))
 
 (define (more? expr)
   (cond 
@@ -68,10 +106,10 @@
   (memq '* x))
 
 (define (multiplier p) 
-  (arithmetic-lhs p '*))
+  (lhs p))
 
 (define (multiplicand p) 
-  (arithmetic-rhs p '*))
+  (rhs p))
 
 
 (define (expression? x)
@@ -109,57 +147,43 @@
         (else (list '** b e))))
 
 
+(define (apply-left-assoc type op expr)
+  (if (more? (pop-expr expr))
+    (type (cons 
+            (op (type (lhs expr))
+                (type (rhs expr)))
+            (pop-expr expr)))
+    (op 
+      (type (lhs expr))
+      (type (rhs expr)))))
+
+
+
 (define (infix exp)
   (cond ((number? exp) exp)
-        ((variable? exp) exp)
-        ((difference? exp)
-         (if (more? (pop-expr exp))
-           (infix (cons
-                    (make-difference
-                      (eval-exp (minuend exp))
-                      (eval-exp (subtrahend exp)))
-                    (pop-expr exp)))
-           (make-difference
-             (eval-exp (minuend exp))
-             (eval-exp (subtrahend exp)))))
-        (else
-         (error "unknown expression type -- eval-exp" exp))))
-
-
-(define (eval-exp exp)
-  (cond ((number? exp) exp)
-        ((variable? exp) exp)
-        ((exponentiation? exp)
-         (make-exponentiation (eval-exp (base exp))
-                              (eval-exp (exponent exp))))
-        ((product? exp)
-         (make-product (eval-exp (multiplier exp))
-                       (eval-exp (multiplicand exp))))
-        ((difference? exp)
-         (make-difference (eval-exp (minuend exp))
-                          (eval-exp (subtrahend exp))))
-        ((sum? exp)
-         (make-sum (eval-exp (addend exp))
-                   (eval-exp (augend exp))))
+        ;((exponentiation? exp) (apply-right-assoc infix make-exponentiation exp))
+        ((product? exp) (apply-left-assoc infix make-product exp))
+        ((sum? exp) (apply-left-assoc infix make-sum exp))
+        ((difference? exp) (apply-left-assoc infix make-difference exp))
         (else
          (error "unknown expression type -- eval-exp" exp))))
 
 
 (define eval-exp-tests
   (test-suite
-    "eval-exp"
+    "infix"
     (test-case
       "simple arithmetic"
-      (check-eq? (eval-exp '(1 + 1)) 2)
-      (check-eq? (eval-exp '(2 * 3)) 6)
-      (check-eq? (eval-exp '((2 * 3) + (2 * 3))) 12)
-      (check-eq? (eval-exp '(2 * 3 + (2 * 3))) 12)
-      (check-eq? (eval-exp '(3 + 2 * 3)) 9)
-      (check-eq? (eval-exp '(2 * 3 + 2 * 3)) 12)
-      (check-eq? (eval-exp '(2 + 3 * 2 + 3)) 11)
-      (check-eq? (eval-exp '(2 + (3 * 2) + 3)) 11)
-      (check-eq? (eval-exp '((2 + 3) * (2 + 3))) 25)
-      (check-eq? (eval-exp '(10 - 5 - 1)) 4)
-      (check-eq? (eval-exp '(2 * 5 - 1)) 9))))
+      (check-eq? (infix '(1 + 1)) 2)
+      (check-eq? (infix '(2 * 3)) 6)
+      (check-eq? (infix '((2 * 3) + (2 * 3))) 12)
+      (check-eq? (infix '(2 * 3 + (2 * 3))) 12)
+      (check-eq? (infix '(3 + 2 * 3)) 9)
+      (check-eq? (infix '(2 * 3 + 2 * 3)) 12)
+      (check-eq? (infix '(2 + 3 * 2 + 3)) 11)
+      (check-eq? (infix '(2 + (3 * 2) + 3)) 11)
+      (check-eq? (infix '((2 + 3) * (2 + 3))) 25)
+      (check-eq? (infix '(10 - 5 - 1)) 4)
+      (check-eq? (infix '(2 * 5 - 1)) 9))))
 
 (run-test eval-exp-tests)
