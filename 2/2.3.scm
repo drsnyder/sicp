@@ -266,6 +266,10 @@
 (define (tree->list-2 tree)
   (copy-to-list tree '()))
 
+(define (tree->list tree)
+  (copy-to-list tree '()))
+
+
 (define t1
   (make-tree 7
              (make-tree 3
@@ -292,5 +296,45 @@
              (make-tree 9
                         (make-leaf 7)
                         (make-leaf 11))))
+
+; 2.64
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+; This function uses divide and conquer to split the ordered list in half and
+; build a tree from each partition of the list. It first recurs on the
+; first (floor (- n 1) 2) elements to create the left tree reserving the n/2'th 
+; position for the root. This first call to partial-tree returns the left tree in the car position
+; and the rest of the list in the cdr. It then recurs on the rest of the cdr from the first call 
+; to partial-tree (the list minus the left half and the root) to create the right tree. Finally, at the top
+; level of the recursion, it combines the root, the left tree and the right
+; tree to construct a complete tree from the list. 
+;
+; If there is an even number of elements the right side will have n/2 + 1 
+; since we are using the element directly before the center as the root in 
+; the even case. Each recursive call to partial-tree only consumes n elements
+; of the list. When n has been reduced to zero a list of the remaining elements
+; is returned. This is how at each step the processing is limited to n/2
+; elements.
+(define (partial-tree elts n)
+  (if (= n 0)
+    (cons '() elts)
+    (let ((left-size (quotient (- n 1) 2)))
+      ; build a balanced left tree with the first half of the elements
+      (let ((left-result (partial-tree elts left-size)))
+        (let ((left-tree (car left-result))
+              (non-left-elts (cdr left-result))
+              (right-size (- n (+ left-size 1))))
+          ; reserve the middle position for the root if the list is odd, just left of the
+          ; middle if the list is even
+          (let ((this-entry (car non-left-elts))
+                ; build a balanced tree with the right half of the elements
+                (right-result (partial-tree (cdr non-left-elts)
+                                            right-size)))
+            (let ((right-tree (car right-result))
+                  (remaining-elts (cdr right-result)))
+              (cons (make-tree this-entry left-tree right-tree)
+                    remaining-elts))))))))
 
 
