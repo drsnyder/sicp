@@ -237,6 +237,14 @@
     (cons (random 100)
           (rand-seq (- n 1)))))
 
+
+(define (rand-set n range)
+  (define (rand-set-i n acc)
+    (if (= n 0) 
+      acc
+      (rand-set-i (- n 1) (adjoin-set (random range) acc))))
+  (rand-set-i n '()))
+
 (define (accumulate op initial sequence)
   (if (null? sequence)
       initial
@@ -337,4 +345,40 @@
               (cons (make-tree this-entry left-tree right-tree)
                     remaining-elts))))))))
 
+
+; 2.64 O(n) union-set and intersection-set
+
+; union: 
+; Assumption: the sets are represented as trees and balanced. We could force
+; this by (list->tree (tree->list set)) but that seems excessive.
+; First, convert the tree representation to an ordered list (2 * O(n)). Once you have the
+; ordered list, perform union-set (O(n)) as above and convert back to a tree
+; (O(log(n))). Doing it this way is 3*n+log(n) => O(n).
+(define (union-set in-set1 in-set2)
+  (define (ordered-list-union-set set1 set2)
+    (cond ((null? set1) set2)
+          ((null? set2) set1)
+          (else (let ((x1 (car set1)) (x2 (car set2)))
+                  (cond ((< x1 x2) 
+                         (cons x1 (ordered-list-union-set  (cdr set1) set2)))
+                        ((> x1 x2) 
+                         (cons x2 (ordered-list-union-set set1 (cdr set2))))
+                        (else (cons x1 (ordered-list-union-set (cdr set1) (cdr set2)))))))))
+  (list->tree (ordered-list-union-set (tree->list in-set1) (tree->list in-set2))))
+
+
+(define (intersection-set in-set1 in-set2)
+  (define (ordered-list-intersection-set set1 set2)
+    (if (or (null? set1) (null? set2))
+      '()    
+      (let ((x1 (car set1)) (x2 (car set2)))
+        (cond ((= x1 x2)
+               (cons x1
+                     (ordered-list-intersection-set (cdr set1)
+                                       (cdr set2))))
+              ((< x1 x2)
+               (ordered-list-intersection-set (cdr set1) set2))
+              ((< x2 x1)
+               (ordered-list-intersection-set set1 (cdr set2)))))))
+  (list->tree (ordered-list-intersection-set (tree->list in-set1) (tree->list in-set2))))
 
