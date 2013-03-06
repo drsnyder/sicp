@@ -361,3 +361,12 @@
 (define (tree-intersection-set in-set1 in-set2)
   (list->tree (intersection-set (tree->list in-set1) (tree->list in-set2))))
 
+
+; 2.65
+(define (lookup given-key set-of-records)
+  (cond ((null? set-of-records) 
+         '())
+        ((= given-key (entry set-of-records)) (entry set-of-records))
+        ((> given-key (entry set-of-records)) (lookup given-key (right-branch set-of-records)))
+        (else (lookup given-key (left-branch set-of-records)))))
+
