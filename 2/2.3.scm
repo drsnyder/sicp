@@ -354,31 +354,10 @@
 ; First, convert the tree representation to an ordered list (2 * O(n)). Once you have the
 ; ordered list, perform union-set (O(n)) as above and convert back to a tree
 ; (O(log(n))). Doing it this way is 3*n+log(n) => O(n).
-(define (union-set in-set1 in-set2)
-  (define (ordered-list-union-set set1 set2)
-    (cond ((null? set1) set2)
-          ((null? set2) set1)
-          (else (let ((x1 (car set1)) (x2 (car set2)))
-                  (cond ((< x1 x2) 
-                         (cons x1 (ordered-list-union-set  (cdr set1) set2)))
-                        ((> x1 x2) 
-                         (cons x2 (ordered-list-union-set set1 (cdr set2))))
-                        (else (cons x1 (ordered-list-union-set (cdr set1) (cdr set2)))))))))
-  (list->tree (ordered-list-union-set (tree->list in-set1) (tree->list in-set2))))
+(define (tree-union-set in-set1 in-set2)
+  (list->tree (union-set (tree->list in-set1) (tree->list in-set2))))
 
 
-(define (intersection-set in-set1 in-set2)
-  (define (ordered-list-intersection-set set1 set2)
-    (if (or (null? set1) (null? set2))
-      '()    
-      (let ((x1 (car set1)) (x2 (car set2)))
-        (cond ((= x1 x2)
-               (cons x1
-                     (ordered-list-intersection-set (cdr set1)
-                                       (cdr set2))))
-              ((< x1 x2)
-               (ordered-list-intersection-set (cdr set1) set2))
-              ((< x2 x1)
-               (ordered-list-intersection-set set1 (cdr set2)))))))
-  (list->tree (ordered-list-intersection-set (tree->list in-set1) (tree->list in-set2))))
+(define (tree-intersection-set in-set1 in-set2)
+  (list->tree (intersection-set (tree->list in-set1) (tree->list in-set2))))
 
