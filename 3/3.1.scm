@@ -60,3 +60,4 @@
 ((acc 'bad 'deposit) 10)
 ((acc 'bad 'deposit) 10)
 
+; Ex 3.5
